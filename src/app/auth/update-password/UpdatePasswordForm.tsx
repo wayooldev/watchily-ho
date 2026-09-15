@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import { createClient } from "@/lib/supabase/client";
 import { env } from "@/env";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily-ho.vercel.app";
+const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily.wayool.com";
 
 export function UpdatePasswordForm() {
   const router = useRouter();

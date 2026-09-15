@@ -20,6 +20,13 @@ export function isSaUnsupportedRegionRoutingEnabled(): boolean {
   return true;
 }
 
+export function countryNeedsSaAvailability(countryCode: string): boolean {
+  return (
+    isSaUnsupportedRegionRoutingEnabled() &&
+    !watchmode.isWatchmodeAvailabilityRegion(countryCode)
+  );
+}
+
 export function isAvailabilityCacheFresh(
   refreshedAt: string | Date | null | undefined,
   now = Date.now(),
@@ -31,6 +38,36 @@ export function isAvailabilityCacheFresh(
       : refreshedAt.getTime();
   if (!Number.isFinite(ts)) return false;
   return now - ts < AVAILABILITY_CACHE_TTL_MS;
+}
+
+/**
+ * True when a cached UnifiedTitle is safe to serve for `country`.
+ * For MX and other non-Watchmode plan regions, Watchmode (or unmarked) sources
+ * are US remaps and must not power Watch now — require availabilitySource=sa.
+ */
+export function isAvailabilityPayloadRegionCorrect(
+  title: UnifiedTitle,
+  country: string,
+): boolean {
+  if (!countryNeedsSaAvailability(country)) return true;
+  // Stubs awaiting enrich stay visible without sources.
+  if (title.sources === undefined && !isLibraryTitleHydrated(title)) {
+    return true;
+  }
+  return title.availabilitySource === "sa";
+}
+
+/** Fresh + region-correct row from title_availability_cache. */
+export function isCachedAvailabilityUsable(
+  title: UnifiedTitle,
+  country: string,
+  refreshedAt: string | Date | null | undefined,
+): boolean {
+  return (
+    isAvailabilityCacheFresh(refreshedAt) &&
+    isLibraryTitleHydrated(title) &&
+    isAvailabilityPayloadRegionCorrect(title, country)
+  );
 }
 
 /** True when library/tile can show real content (not a stub skeleton). */

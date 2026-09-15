@@ -14,7 +14,10 @@ import {
   readLibraryStatuses,
   writeLibraryCatalog,
   writeLibraryStatuses,
+  type LibraryCatalogCache,
 } from "@/lib/library-cache";
+import { withTvDeviceQuery } from "@/lib/tv-mode";
+import { isAvailabilityPayloadRegionCorrect } from "@/lib/streaming/unified";
 
 export type { ListSection } from "@/types/library";
 
@@ -60,12 +63,35 @@ function stubTitle(id: string, titleType: string): UnifiedTitle {
   };
 }
 
-async function LibraryData() {
+/** Drop wrong-region Watch now links and re-queue enrich (e.g. Watchmode US under MX). */
+function scrubCatalogForCountry(
+  catalog: LibraryCatalogCache,
+  country: string,
+): LibraryCatalogCache {
+  const pending = new Set(catalog.pendingTitleIds);
+  let changed = false;
+  const sections = catalog.sections.map((section) => ({
+    ...section,
+    titles: section.titles.map((title) => {
+      if (isAvailabilityPayloadRegionCorrect(title, country)) return title;
+      changed = true;
+      pending.add(title.id);
+      return {
+        ...title,
+        sources: undefined,
+        availabilitySource: undefined,
+      };
+    }),
+  }));
+  if (!changed && pending.size === catalog.pendingTitleIds.length) {
+    return catalog;
+  }
+  return { sections, pendingTitleIds: [...pending] };
+}
+
+async function LibraryData({ userId }: { userId: string }) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(localizedPath("/login", await getLocale()));
+  const user = { id: userId };
 
   const statusPromise = readLibraryStatuses(user.id).then(async (cached) => {
     if (cached) return { cached, statusMap: cached.statusMap };
@@ -106,13 +132,17 @@ async function LibraryData() {
   const prefs = normalizePrefs(prefsResult.data);
 
   if (cachedCatalog) {
+    const scrubbed = scrubCatalogForCountry(cachedCatalog, CACHE_COUNTRY);
+    if (scrubbed !== cachedCatalog) {
+      after(() => writeLibraryCatalog(user.id, CACHE_COUNTRY, scrubbed));
+    }
     return (
       <LibraryContent
-        sections={cachedCatalog.sections}
+        sections={scrubbed.sections}
         userProviderIds={userProviderIds}
         statusMap={statusMap}
         prefs={prefs}
-        pendingTitleIds={cachedCatalog.pendingTitleIds}
+        pendingTitleIds={scrubbed.pendingTitleIds}
         userScope={user.id}
         country={CACHE_COUNTRY}
       />
@@ -208,7 +238,21 @@ async function LibraryData() {
   );
 }
 
-export default async function LibraryPage() {
+export default async function LibraryPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ device?: string }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    const login = localizedPath("/login", await getLocale());
+    redirect(withTvDeviceQuery(login, params.device));
+  }
+
   return (
     <main className="container mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <Suspense
@@ -231,7 +275,7 @@ export default async function LibraryPage() {
           </div>
         }
       >
-        <LibraryData />
+        <LibraryData userId={user.id} />
       </Suspense>
     </main>
   );

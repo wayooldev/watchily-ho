@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { getPopularTitles } from "@/lib/streaming/unified";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -17,7 +17,7 @@ import { env } from "@/env";
 
 export const dynamic = "force-dynamic";
 
-const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily-ho.vercel.app";
+const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily.wayool.com";
 
 function tileHtml(t: {
   id: string;
@@ -137,7 +137,7 @@ export async function GET() {
     });
   } catch (e) {
     console.error("tv-standalone error:", e);
-    const fallback = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Watchily</title></head><body style="background:#0a0a0a;color:#fff;font-family:sans-serif;padding:48px"><h1>Watchily</h1><p>Error al cargar. <a href="https://watchily-ho.vercel.app" style="color:#60a5fa">Ir a la web</a></p></body></html>`;
+    const fallback = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Watchily</title></head><body style="background:#0a0a0a;color:#fff;font-family:sans-serif;padding:48px"><h1>Watchily</h1><p>Error al cargar. <a href="https://watchily.wayool.com" style="color:#60a5fa">Ir a la web</a></p></body></html>`;
     return new NextResponse(fallback, {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });

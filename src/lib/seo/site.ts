@@ -1,4 +1,4 @@
-import { env } from "@/env";
+﻿import { env } from "@/env";
 
 export const PRODUCT_NAME = "Watchily";
 
@@ -14,7 +14,7 @@ export function getSiteUrl(): string {
   const vercel = env.VERCEL_URL;
   if (vercel) return `https://${vercel.replace(/\/$/, "")}`;
 
-  return "https://watchily-ho.vercel.app";
+  return "https://watchily.wayool.com";
 }
 
 const PRODUCTION_GIT_BRANCHES = new Set(["main", "master"]);

@@ -1,10 +1,22 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import {
   getTitleDetails,
-  isAvailabilityCacheFresh,
+  isCachedAvailabilityUsable,
+  isLibraryTitleHydrated,
 } from "@/lib/streaming/unified";
+import type { UnifiedTitle } from "@/types/streaming";
 
 const DEFAULT_COUNTRY = "MX";
+
+function isUnifiedTitle(value: unknown): value is UnifiedTitle {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.name === "string" &&
+    (v.type === "movie" || v.type === "series")
+  );
+}
 
 export async function refreshTitleAvailabilityCache(
   titleId: string,
@@ -13,12 +25,20 @@ export async function refreshTitleAvailabilityCache(
   const admin = createAdminClient();
   const { data: existing } = await admin
     .from("title_availability_cache")
-    .select("refreshed_at")
+    .select("refreshed_at, payload")
     .eq("title_id", titleId)
     .eq("country_code", countryCode)
     .maybeSingle();
 
-  if (existing && isAvailabilityCacheFresh(existing.refreshed_at)) {
+  if (
+    existing &&
+    isUnifiedTitle(existing.payload) &&
+    isCachedAvailabilityUsable(
+      existing.payload,
+      countryCode,
+      existing.refreshed_at,
+    )
+  ) {
     return { titleId, ok: true, skipped: true };
   }
 
@@ -26,7 +46,7 @@ export async function refreshTitleAvailabilityCache(
     country: countryCode,
     region: countryCode,
   });
-  if (!detail) {
+  if (!detail || !isLibraryTitleHydrated(detail)) {
     return { titleId, ok: false };
   }
 

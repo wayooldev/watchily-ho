@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/env";
 
 export const dynamic = "force-dynamic";
 
-const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily-ho.vercel.app";
+const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily.wayool.com";
 const PAIR_URL = `${BASE}/tv/pair`;
 
 function escapeHtml(s: string): string {
@@ -117,7 +117,7 @@ export async function GET(request: Request) {
         <a href="${BASE}/auth/forgot-password-standalone">¿Usaste Google? Configura contrase&ntilde;a</a>
       </p>
       <p class="footer">
-        ¿No tienes cuenta? Cr&eacute;ala en tu m&oacute;vil o computadora en watchily-ho.vercel.app
+        ¿No tienes cuenta? Cr&eacute;ala en tu m&oacute;vil o computadora en watchily.wayool.com
       </p>
     </div>
   </div>

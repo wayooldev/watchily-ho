@@ -181,10 +181,13 @@
   },
   "tv": {
     "home": "Home",
+    "library": "My Library",
     "search": "Search",
     "lists": "Lists",
     "all": "View all",
+    "settings": "Settings",
     "signOut": "Sign out",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "pairHint": "Prefer pairing? Use the code flow from another device."
   }
 }

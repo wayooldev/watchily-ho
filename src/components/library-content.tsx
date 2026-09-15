@@ -45,6 +45,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { TitleTile } from "@/components/title-tile";
 import { ProviderFilterBar } from "@/components/provider-filter-bar";
@@ -71,6 +78,7 @@ import { useAuthScope } from "@/components/app-providers";
 import { queryKeys, type LibraryEnrichmentResponse } from "@/lib/query";
 import { libraryParsers } from "@/lib/url-state";
 import { useBatchedInteractionState } from "@/hooks/use-batched-interaction-state";
+import { useTvMode } from "@/components/tv-mode-context";
 
 const COLLAPSED_KEY = "watchily.library.collapsed";
 const ENRICH_BATCH = 8;
@@ -422,7 +430,7 @@ function SortableTitleTile({
     <div ref={setNodeRef} style={style} className="relative">
       <button
         type="button"
-        className="absolute left-1 top-1 z-10 flex touch-none items-center justify-center rounded-md bg-black/55 p-1 text-white/80 hover:bg-black/70"
+        className="absolute left-2 top-9 z-20 flex touch-none items-center justify-center rounded-md bg-black/70 p-1 text-white/90 hover:bg-black/85"
         aria-label="Drag to reorder title"
         {...attributes}
         {...listeners}
@@ -454,6 +462,7 @@ export function LibraryContent({
   country,
 }: Props) {
   const t = useTranslations("library");
+  const { isTv } = useTvMode();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [urlState, setUrlState] = useQueryStates(libraryParsers, {
@@ -748,11 +757,13 @@ export function LibraryContent({
   }, [processedSections, statusFilter, typeFilter, query]);
 
   const canReorderLists =
+    !isTv &&
     statusFilter === "all" &&
     typeFilter === "all" &&
     !query.trim() &&
     visibleSections.length > 1;
   const canReorderTitles =
+    !isTv &&
     titleSort === "custom" &&
     statusFilter === "all" &&
     typeFilter === "all" &&
@@ -999,16 +1010,49 @@ export function LibraryContent({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <select
-          value={titleSort}
-          onChange={(e) => changeTitleSort(e.target.value as TitleSortMode)}
-          className="h-9 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-foreground"
-          aria-label="Sort titles"
-        >
-          <option value="custom">{t("customOrder")}</option>
-          <option value="asc">{t("nameAsc")}</option>
-          <option value="desc">{t("nameDesc")}</option>
-        </select>
+        {isTv ? (
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Sort titles"
+          >
+            <button
+              type="button"
+              className={statusChipClass(titleSort === "custom")}
+              onClick={() => changeTitleSort("custom")}
+            >
+              {t("customOrder")}
+            </button>
+            <button
+              type="button"
+              className={statusChipClass(titleSort === "asc")}
+              onClick={() => changeTitleSort("asc")}
+            >
+              {t("nameAsc")}
+            </button>
+            <button
+              type="button"
+              className={statusChipClass(titleSort === "desc")}
+              onClick={() => changeTitleSort("desc")}
+            >
+              {t("nameDesc")}
+            </button>
+          </div>
+        ) : (
+          <Select
+            value={titleSort}
+            onValueChange={(value) => changeTitleSort(value as TitleSortMode)}
+          >
+            <SelectTrigger className="w-[11.5rem]" aria-label="Sort titles">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="custom">{t("customOrder")}</SelectItem>
+              <SelectItem value="asc">{t("nameAsc")}</SelectItem>
+              <SelectItem value="desc">{t("nameDesc")}</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         <Button variant="outline" size="sm" onClick={expandAll}>
           {t("expandAll")}
         </Button>

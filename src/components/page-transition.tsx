@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { useTvMode } from "@/components/tv-mode-context";
 
 const variants = {
   initial: { opacity: 0, y: 8 },
@@ -11,6 +12,12 @@ const variants = {
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { reduceMotion } = useTvMode();
+
+  if (reduceMotion) {
+    return <div key={pathname}>{children}</div>;
+  }
+
   return (
     <motion.div
       key={pathname}

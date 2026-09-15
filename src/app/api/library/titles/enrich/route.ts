@@ -3,6 +3,7 @@ import { after } from "next/server";
 import { getSupabaseAndUser, createAdminClient } from "@/lib/supabase/server";
 import {
   getTitleDetails,
+  isCachedAvailabilityUsable,
   isLibraryTitleHydrated,
 } from "@/lib/streaming/unified";
 import { invalidateLibraryCatalog } from "@/lib/library-cache";
@@ -67,7 +68,10 @@ export async function POST(request: Request) {
   const byId = new Map<string, UnifiedTitle>();
 
   for (const row of cached) {
-    if (isUnifiedTitle(row.payload) && isLibraryTitleHydrated(row.payload)) {
+    if (
+      isUnifiedTitle(row.payload) &&
+      isCachedAvailabilityUsable(row.payload, country, row.refreshed_at)
+    ) {
       byId.set(row.title_id, row.payload);
     }
   }

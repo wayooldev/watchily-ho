@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   tvNavHtml,
@@ -10,7 +10,7 @@ import { env } from "@/env";
 
 export const dynamic = "force-dynamic";
 
-const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily-ho.vercel.app";
+const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily.wayool.com";
 
 function escapeHtml(s: string): string {
   return s
@@ -136,7 +136,7 @@ export async function GET() {
     });
   } catch (e) {
     console.error("lists-standalone error:", e);
-    const fallback = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Watchily</title></head><body style="background:#0d0d12;color:#fff;font-family:sans-serif;padding:48px"><h1>Error</h1><p>No se pudo cargar. <a href="https://watchily-ho.vercel.app/tv-standalone" style="color:#60a5fa">Volver</a></p></body></html>`;
+    const fallback = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Watchily</title></head><body style="background:#0d0d12;color:#fff;font-family:sans-serif;padding:48px"><h1>Error</h1><p>No se pudo cargar. <a href="https://watchily.wayool.com/tv-standalone" style="color:#60a5fa">Volver</a></p></body></html>`;
     return new NextResponse(fallback, {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });

@@ -1,4 +1,4 @@
-# Watchily - LG webOS TV (Hosted Web App)
+﻿# Watchily - LG webOS TV (Hosted Web App)
 
 ## Probar en la TV
 
@@ -13,7 +13,7 @@
    ```
    O con dispositivo: `ares-install com.watchily.web_1.0.0_all.ipk -d <nombre-tv>`
 
-3. La app abre directamente la página Popular en https://watchily-ho.vercel.app/tv
+3. La app abre directamente la página Popular en https://watchily.wayool.com/tv
 
 ## Requisitos
 

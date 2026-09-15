@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getTitleDetails } from "@/lib/streaming/unified";
 import {
-  canonicalProviderId,
   dedupeSourcesByBrand,
   displayProviderName,
   filterTitlesByUserProviders,
 } from "@/lib/streaming/providers";
+import { resolveWebOSAppId } from "@/lib/webos-launch";
 import {
   tvNavHtml,
   tvNavCss,
@@ -18,7 +18,7 @@ import { env } from "@/env";
 
 export const dynamic = "force-dynamic";
 
-const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily-ho.vercel.app";
+const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily.wayool.com";
 
 function escapeHtml(s: string): string {
   return s
@@ -78,30 +78,6 @@ export async function GET(
           ? "Compra"
           : "Gratis";
 
-  const webOSAppIdsByBrand: Record<string, string> = {
-    netflix: "netflix",
-    disney_plus: "com.disney.disneyplus-prod",
-    hbo_max: "com.wbd.max",
-    amazon_prime: "amazon",
-    crunchyroll: "com.crunchyroll.crmay",
-    paramount_plus: "com.paramount.paramountplus",
-    apple_tv_plus: "com.apple.appletv",
-  };
-  function resolveWebOSAppId(providerName: string): string | undefined {
-    const brand = canonicalProviderId(providerName ?? "");
-    if (webOSAppIdsByBrand[brand]) return webOSAppIdsByBrand[brand];
-    const raw = (providerName ?? "").toLowerCase().trim();
-    return (
-      (raw.includes("crunchy") ? "com.crunchyroll.crmay" : undefined) ??
-      (raw.includes("paramount") ? "com.paramount.paramountplus" : undefined) ??
-      (raw.includes("hbo") || raw.includes("max")
-        ? "com.wbd.max"
-        : undefined) ??
-      (raw.includes("disney") ? "com.disney.disneyplus-prod" : undefined) ??
-      (raw.includes("netflix") ? "netflix" : undefined) ??
-      (raw.includes("prime") || raw.includes("amazon") ? "amazon" : undefined)
-    );
-  }
   const sourceCards = (sources: typeof uniqueSources) =>
     sources
       .map((s) => {

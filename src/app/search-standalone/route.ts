@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { searchTitles, getTitleDetails } from "@/lib/streaming/unified";
 import {
@@ -18,7 +18,7 @@ import { env } from "@/env";
 
 export const dynamic = "force-dynamic";
 
-const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily-ho.vercel.app";
+const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily.wayool.com";
 
 function escapeHtml(s: string): string {
   return s

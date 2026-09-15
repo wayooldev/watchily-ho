@@ -12,12 +12,19 @@ import { captureProductEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTvMode } from "@/components/tv-mode-context";
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("auth");
-  const next = searchParams.get("next") ?? localizedPath("/popular", locale);
+  const tTv = useTranslations("tv");
+  const { isTv, reduceMotion } = useTvMode();
+  const deviceTv = searchParams.get("device") === "tv" || isTv;
+  const defaultNext = deviceTv
+    ? localizedPath("/library?device=tv", locale)
+    : localizedPath("/library", locale);
+  const next = searchParams.get("next") ?? defaultNext;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -92,7 +99,9 @@ export default function LoginPage() {
       if (onboardingRes.ok) {
         const onboarding = await onboardingRes.json();
         if (onboarding.needsOnboarding) {
-          window.location.href = "/settings?onboarding=1";
+          window.location.href = deviceTv
+            ? "/settings?onboarding=1&device=tv"
+            : "/settings?onboarding=1";
           return;
         }
       }
@@ -104,24 +113,59 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div
+      className={
+        deviceTv
+          ? "flex justify-center py-2 sm:py-4"
+          : "flex min-h-screen items-center justify-center p-4"
+      }
+    >
       <motion.div
-        className="w-full max-w-sm space-y-6 rounded-lg border border-border bg-card p-6"
-        initial={{ opacity: 0, y: 16 }}
+        className={
+          deviceTv
+            ? "w-full max-w-2xl space-y-5 rounded-xl border border-border bg-card/95 p-8 sm:p-10"
+            : "w-full max-w-sm space-y-6 rounded-lg border border-border bg-card p-6"
+        }
+        initial={reduceMotion ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : { duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }
+        }
       >
-        <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-bold">Watchily</h1>
-          <p className="text-muted-foreground text-sm">
+        <div className={`space-y-2 ${deviceTv ? "text-left" : "text-center"}`}>
+          <h1
+            className={deviceTv ? "text-3xl font-bold" : "text-2xl font-bold"}
+          >
+            Watchily
+          </h1>
+          <p
+            className={
+              deviceTv
+                ? "text-muted-foreground text-base"
+                : "text-muted-foreground text-sm"
+            }
+          >
             {t("signInToContinue")}
           </p>
         </div>
 
+        {deviceTv && (
+          <p className="text-left text-base text-muted-foreground">
+            <Link
+              href="/tv/pair"
+              className="underline hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              {tTv("pairHint")}
+            </Link>
+          </p>
+        )}
+
         <Button
           type="button"
           variant="outline"
-          className="w-full"
+          className={deviceTv ? "h-12 w-full text-base" : "w-full"}
           onClick={handleGoogleSignIn}
           disabled={loading}
         >
@@ -168,13 +212,17 @@ export default function LoginPage() {
             </p>
           )}
           <div className="flex gap-2">
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button
+              type="submit"
+              className={deviceTv ? "h-12 flex-1 text-base" : "flex-1"}
+              disabled={loading}
+            >
               {t("signIn")}
             </Button>
             <Button
               type="button"
               variant="secondary"
-              className="flex-1"
+              className={deviceTv ? "h-12 flex-1 text-base" : "flex-1"}
               disabled={loading}
               onClick={handleEmailSignUp}
             >

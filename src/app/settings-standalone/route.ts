@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   tvNavHtml,
@@ -10,7 +10,7 @@ import { env } from "@/env";
 
 export const dynamic = "force-dynamic";
 
-const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily-ho.vercel.app";
+const BASE = env.NEXT_PUBLIC_APP_URL ?? "https://watchily.wayool.com";
 
 const COUNTRY_NAMES: Record<string, string> = {
   US: "Estados Unidos",
@@ -96,7 +96,7 @@ export async function GET() {
       <p class="label">Plataformas</p>
       <div class="providers">${providers.length ? providers.map((p) => `<span>${p}</span>`).join("") : "<span style='color:#888'>Ninguna</span>"}</div>
     </div>
-    <p class="web-link">Para cambiar país o plataformas, abre <a href="${BASE}/settings">watchily-ho.vercel.app/settings</a> en tu móvil o PC.</p>
+    <p class="web-link">Para cambiar país o plataformas, abre <a href="${BASE}/settings">watchily.wayool.com/settings</a> en tu móvil o PC.</p>
   </div>
   </main>
   <script>

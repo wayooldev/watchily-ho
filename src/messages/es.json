@@ -181,10 +181,13 @@
   },
   "tv": {
     "home": "Inicio",
+    "library": "Mi biblioteca",
     "search": "Buscar",
     "lists": "Listas",
     "all": "Ver todo",
+    "settings": "Configuración",
     "signOut": "Cerrar sesión",
-    "loading": "Cargando…"
+    "loading": "Cargando…",
+    "pairHint": "¿Prefieres emparejar? Usa el flujo con código desde otro dispositivo."
   }
 }

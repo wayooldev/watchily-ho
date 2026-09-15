@@ -30,7 +30,8 @@ function getRedis(): Redis | null {
 }
 
 function catalogKey(userId: string, country: string): string {
-  return `watchily:library:v1:catalog:${userId}:${country}`;
+  // v2: invalidate catalogs that may have cached Watchmode US links for MX/SA regions
+  return `watchily:library:v2:catalog:${userId}:${country}`;
 }
 
 function statusKey(userId: string): string {

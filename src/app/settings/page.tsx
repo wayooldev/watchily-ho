@@ -5,18 +5,26 @@ import { PushToggle } from "@/components/pwa/push-toggle";
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "next-intl/server";
 import { localizedPath, type AppLocale } from "@/i18n/routing";
+import { withTvDeviceQuery } from "@/lib/tv-mode";
 
 export default async function SettingsPage({
   locale,
+  searchParams,
 }: {
   locale?: AppLocale;
+  searchParams?: Promise<{ device?: string }>;
 } = {}) {
   const activeLocale = locale ?? (await getLocale());
+  const params = searchParams ? await searchParams : {};
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect(localizedPath("/login", activeLocale));
+  if (!user) {
+    redirect(
+      withTvDeviceQuery(localizedPath("/login", activeLocale), params.device),
+    );
+  }
 
   const { data: profile } = await supabase
     .from("profiles")

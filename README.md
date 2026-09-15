@@ -1,8 +1,8 @@
-## ¿Qué es Watchily?
+﻿## ¿Qué es Watchily?
 
 Watchily es una aplicación web tipo JustWatch que te ayuda a descubrir en qué plataformas de streaming están disponibles películas y series en tu región.
 
-**En vivo:** https://watchily-ho.vercel.app/
+**En vivo:** https://watchily.wayool.com/
 
 ## ¿Para quién es?
 
@@ -120,8 +120,10 @@ Las rutas API usan la sesión del usuario (cookies) con la clave Publishable; la
 
 ## LG TV
 
-- **Hosted Web App**: Carpeta `lg-tv-hosted` con `appinfo.json` e `index.html` que redirige a `https://TU_APP.vercel.app/tv`.
-- **Modo TV** (`/tv`): Layout con safe areas (márgenes 5% y `env(safe-area-inset-*)`). Para navegación con mando a distancia se puede integrar `@noriginmedia/norigin-spatial-navigation` en un cliente que envuelva el contenido de `/tv`.
+- **Hosted Web App**: Carpeta `lg-tv-hosted` con `appinfo.json` e `index.html` que redirige a `https://TU_APP.vercel.app/tv` (middleware envía a Library en modo React).
+- **Modo TV React (default)**: shell `TvChrome` + Library/Search/Title/Settings compartidos con la web. Detección por User-Agent o `?device=tv`. Escape a HTML legacy: `?tv_ui=standalone` o `TV_UI_MODE=standalone`.
+- **Navegación**: foco espacial propio (`src/lib/tv-spatial-nav.ts`) + mando; sin `@noriginmedia/norigin-spatial-navigation` (evita crashes `measureLayout`). Framer Motion se atenúa en TV.
+- **Rollback**: rutas `*-standalone` siguen en el repo durante soak; URLs legacy redirigen a React salvo modo standalone.
 
 ## Production practices
 

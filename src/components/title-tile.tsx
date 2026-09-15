@@ -35,6 +35,8 @@ import {
   requireSuccessfulResponse,
 } from "@/lib/mutation-feedback";
 import { useAuthScope } from "@/components/app-providers";
+import { useTvMode } from "@/components/tv-mode-context";
+import { StreamingLink } from "@/components/streaming-link";
 import {
   queryKeys,
   type ListResponse,
@@ -368,6 +370,7 @@ export function TitleTile({
   interactionLoading?: boolean;
 }) {
   const t = useTranslations("common");
+  const { reduceMotion } = useTvMode();
   const pending = title.sources === undefined && !title.poster && !title.name;
   const posterUrl = title.poster?.startsWith("http") ? title.poster : undefined;
   const subSources = title.sources
@@ -385,17 +388,28 @@ export function TitleTile({
       ? (getPlatformDef(subSources[0].providerName)?.color ?? "#6366f1")
       : "#6366f1";
 
+  const tileClassName =
+    "group relative flex flex-col overflow-hidden rounded-xl border border-white/10 bg-card";
+
   return (
     <motion.div
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-white/10 bg-card"
-      initial={{ opacity: 0, scale: 0.97 }}
+      className={tileClassName}
+      initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
-      whileHover={{
-        scale: 1.03,
-        borderColor: `${firstPlatformColor}90`,
-        boxShadow: `0 0 0 1px ${firstPlatformColor}50, 0 10px 40px ${firstPlatformColor}35`,
-      }}
+      transition={
+        reduceMotion
+          ? { duration: 0 }
+          : { duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }
+      }
+      whileHover={
+        reduceMotion
+          ? undefined
+          : {
+              scale: 1.03,
+              borderColor: `${firstPlatformColor}90`,
+              boxShadow: `0 0 0 1px ${firstPlatformColor}50, 0 10px 40px ${firstPlatformColor}35`,
+            }
+      }
     >
       {/* Poster */}
       <div className="relative aspect-2/3 overflow-hidden bg-muted">
@@ -551,20 +565,13 @@ export function TitleTile({
               ? "#2a2a2e"
               : (def?.color ?? "var(--primary)");
             return (
-              <a
-                href={firstSource.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                onClickCapture={() =>
-                  captureProductEvent("streaming_link_clicked", {
-                    provider: firstSource.providerName,
-                    offerType: firstSource.type,
-                  })
-                }
+              <StreamingLink
+                source={firstSource}
                 className="group/play hidden sm:block"
               >
                 <div
+                  role="presentation"
+                  onClick={(e) => e.stopPropagation()}
                   className="flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 text-xs font-bold text-white transition-all duration-150 ease-out group-hover/play:-translate-y-px group-hover/play:brightness-115 active:scale-95 active:brightness-90"
                   style={{
                     background: `linear-gradient(135deg, ${btnColor}ee 0%, ${btnColor}99 100%)`,
@@ -581,7 +588,7 @@ export function TitleTile({
                     />
                   )}
                 </div>
-              </a>
+              </StreamingLink>
             );
           })()}
 

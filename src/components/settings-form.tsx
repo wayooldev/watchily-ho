@@ -8,7 +8,6 @@ import {
   useRouter as useLocaleRouter,
 } from "@/i18n/routing";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
 import { type IconType } from "react-icons";
 import { TbBrandDisney } from "react-icons/tb";
 import {
@@ -21,12 +20,20 @@ import {
 } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { captureProductEvent } from "@/lib/analytics";
 import {
   getMutationErrorMessage,
   requireSuccessfulResponse,
 } from "@/lib/mutation-feedback";
+import { useTvMode } from "@/components/tv-mode-context";
 
 const PROVIDERS = [
   { id: "netflix", name: "Netflix", icon: SiNetflix, color: "#E50914" },
@@ -86,6 +93,7 @@ export function SettingsForm({
   const localizedRouter = useLocaleRouter();
   const localizedPathname = useLocalePathname();
   const router = useRouter();
+  const { isTv } = useTvMode();
   const [country, setCountry] = useState(initialCountry);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     new Set(initialProviderIds),
@@ -161,25 +169,46 @@ export function SettingsForm({
     <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="locale-setting">{common("language")}</Label>
-        <select
-          id="locale-setting"
-          aria-label={common("switchLanguage")}
-          value={locale}
-          onChange={(event) => switchLocale(event.target.value as "en" | "es")}
-          className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/30"
-        >
-          <option value="en">{common("english")}</option>
-          <option value="es">{common("spanish")}</option>
-        </select>
+        {isTv ? (
+          <select
+            id="locale-setting"
+            aria-label={common("switchLanguage")}
+            value={locale}
+            onChange={(event) =>
+              switchLocale(event.target.value as "en" | "es")
+            }
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/30"
+          >
+            <option value="en">{common("english")}</option>
+            <option value="es">{common("spanish")}</option>
+          </select>
+        ) : (
+          <Select
+            value={locale}
+            onValueChange={(value) => switchLocale(value as "en" | "es")}
+          >
+            <SelectTrigger
+              id="locale-setting"
+              className="h-11"
+              aria-label={common("switchLanguage")}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">{common("english")}</SelectItem>
+              <SelectItem value="es">{common("spanish")}</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="country">{t("country")}</Label>
-        <div className="relative">
+        {isTv ? (
           <select
             id="country"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            className="h-11 w-full appearance-none rounded-lg border border-input bg-background px-3 pr-10 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/30"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
@@ -187,8 +216,20 @@ export function SettingsForm({
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        </div>
+        ) : (
+          <Select value={country} onValueChange={setCountry}>
+            <SelectTrigger id="country" className="h-11">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {COUNTRIES.map((c) => (
+                <SelectItem key={c.code} value={c.code}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
       <div className="space-y-3">
         <Label>{t("providers")}</Label>

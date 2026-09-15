@@ -59,20 +59,30 @@ test("auth callback remains outside locale routing", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?error=auth_callback_error/);
 });
 
-test("normal TV route renders without locale context", async ({ page }) => {
-  await page.goto("/tv");
-  await expect(
-    page.getByRole("link", { name: "Home", exact: true }),
-  ).toBeVisible({ timeout: SSR_PAGE_TIMEOUT });
+test("TV entry redirects to login or library (React TV)", async ({ page }) => {
+  await page.goto("/tv", {
+    waitUntil: "domcontentloaded",
+    timeout: SSR_PAGE_TIMEOUT,
+  });
+  await expect(page).toHaveURL(/\/(login|library)/, {
+    timeout: SSR_PAGE_TIMEOUT,
+  });
   await expect(page.getByText("Algo salió mal")).not.toBeVisible();
 });
 
-test("TV user-agent rewrite keeps the hosted route compatible", async ({
+test("TV user-agent uses React TV entry (not standalone home)", async ({
   page,
 }) => {
   await page.context().setExtraHTTPHeaders({
     "user-agent": "Mozilla/5.0 (Web0S; SmartTV)",
   });
-  await page.goto("/tv");
+  await page.goto("/tv", {
+    waitUntil: "domcontentloaded",
+    timeout: SSR_PAGE_TIMEOUT,
+  });
+  await expect(page).toHaveURL(/\/(login|library)/, {
+    timeout: SSR_PAGE_TIMEOUT,
+  });
+  await expect(page).not.toHaveURL(/standalone/);
   await expect(page.locator("body")).toContainText("Watchily");
 });

@@ -1,4 +1,4 @@
----
+﻿---
 description: SIEMPRE verificar que el deployment a Vercel termine correctamente después de cada push
 globs: 
 alwaysApply: true
@@ -31,7 +31,7 @@ alwaysApply: true
    El primer deployment debe mostrar **● Ready** (no ● Error). Si muestra ● Building, esperar y volver a ejecutar hasta que esté ● Ready.
 
 2. **Comprobar producción** (opcional pero recomendado):
-   - Hacer fetch de `https://watchily-ho.vercel.app/` y confirmar que responde 200 con contenido válido.
+   - Hacer fetch de `https://watchily.wayool.com/` y confirmar que responde 200 con contenido válido.
 
 3. **Si el deploy falló**: Revisar el log en https://vercel.com → proyecto → Deployments → último deployment → Building. Corregir y volver a hacer push.
 

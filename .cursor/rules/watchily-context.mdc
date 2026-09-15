@@ -1,4 +1,4 @@
----
+﻿---
 description: Contexto del proyecto Watchily: IDs, claves Supabase, MCPs y env
 globs: 
 alwaysApply: true
@@ -19,7 +19,7 @@ alwaysApply: true
 - **Repo**: `mauricioabh/watchily-ho` — https://github.com/mauricioabh/watchily-ho
 
 ## Vercel
-- **URL producción**: https://watchily-ho.vercel.app
+- **URL producción**: https://watchily.wayool.com
 - Variables de entorno: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (si se usa admin client), y opcionalmente WATCHMODE_API_KEY, STREAMING_AVAILABILITY_API_KEY.
 - Los pushes a `main` despliegan automáticamente.
 - **Regla de deployment**: `.cursor/rules/deployment-verification.mdc` — `npm run build` antes de push; **SIEMPRE** `vercel ls` después de push y confirmar ● Ready.
@@ -28,7 +28,7 @@ alwaysApply: true
 - `.env`: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `EXPO_PUBLIC_API_URL` (URL de Vercel).
 
 ## LG TV (lg-tv-hosted)
-- `index.html` apunta a `https://watchily-ho.vercel.app/tv`.
+- `index.html` apunta a `https://watchily.wayool.com/tv`.
 
 ## API routes y seguridad
 - Las API routes usan `createClient()` (sesión del usuario vía cookies); RLS se aplica. No exponer nunca la Secret key al cliente.
