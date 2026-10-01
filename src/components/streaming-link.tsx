@@ -3,11 +3,7 @@
 import type { ReactNode } from "react";
 import { captureProductEvent } from "@/lib/analytics";
 import type { StreamingSource } from "@/types/streaming";
-import {
-  isWebOSEnvironment,
-  launchStreamingOnWebOS,
-  resolveWebOSAppId,
-} from "@/lib/webos-launch";
+import { launchStreamingWatchNow } from "@/lib/tv-streaming-launch";
 import { useTvMode } from "@/components/tv-mode-context";
 
 export function StreamingLink({
@@ -36,12 +32,13 @@ export function StreamingLink({
           });
         }
         if (!source.url || source.url === "#") return;
-        if (isTv || isWebOSEnvironment()) {
+        const platform = launchStreamingWatchNow({
+          providerName: source.providerName,
+          url: source.url,
+          preferTvBehavior: isTv,
+        });
+        if (platform !== "browser" || isTv) {
           e.preventDefault();
-          launchStreamingOnWebOS({
-            appId: resolveWebOSAppId(source.providerName),
-            url: source.url,
-          });
         }
       }}
     >

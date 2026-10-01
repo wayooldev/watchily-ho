@@ -1,23 +1,38 @@
 ﻿# Watchily - LG webOS TV (Hosted Web App)
 
-## Probar en la TV
+Thin shell that opens the production TV UI:
 
-1. **Empaquetar** (genera el IPK):
-   ```bash
-   npm run tv:package
-   ```
+`https://watchily.wayool.com/tv`
 
-2. **Instalar** en la TV conectada:
-   ```bash
-   npm run tv:install
-   ```
-   O con dispositivo: `ares-install com.watchily.web_1.0.0_all.ipk -d <nombre-tv>`
+Full packaging, Dev Mode, store checklist, and LG vs Samsung notes: [docs/tv-packaging.md](../docs/tv-packaging.md).
+Watch now / native provider launch: [docs/tv-streaming-urls.md](../docs/tv-streaming-urls.md).
 
-3. La app abre directamente la página Popular en https://watchily.wayool.com/tv
+## Local package / install
 
-## Requisitos
+```bash
+npm run tv:package   # writes com.watchily.web_<version>_all.ipk
+npm run tv:install   # ares-install onto the default Dev Mode TV
+```
 
-- webOS TV SDK (ares-package, ares-install)
-- Iconos `icon.png` (80x80) y `largeIcon.png` (130x130) en esta carpeta
+With an explicit device:
 
-Documentación: https://webostv.developer.lge.com/develop/getting-started/web-app-types
+```bash
+ares-install com.watchily.web_1.0.1_all.ipk -d <device-name>
+```
+
+### Prerequisites
+
+- webOS TV SDK (`ares-package`, `ares-install`)
+- Icons `icon.png` (80×80) and `largeIcon.png` (130×130) in this folder
+- TV in Developer Mode; `ares-setup-device` configured
+
+## Version
+
+Current `appinfo.json` version: **1.0.1** (id `com.watchily.web`).
+
+- Bump `version` in `appinfo.json` for LG Content Store updates / new IPK sideloads.
+- Content-only UI changes ship via Vercel — no IPK rebuild required.
+
+## Permissions
+
+`appinfo.json` includes launcher privileges for Watch now (open Netflix/Disney+/… via Luna). See design notes in docs.

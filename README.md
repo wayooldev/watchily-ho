@@ -118,12 +118,13 @@ Las rutas API usan la sesión del usuario (cookies) con la clave Publishable; la
   Spanish pages live under `/es`. API, auth callback, OpenAPI, asset, and
   standalone TV contracts remain unlocalized.
 
-## LG TV
+## LG & Samsung TV
 
-- **Hosted Web App**: Carpeta `lg-tv-hosted` con `appinfo.json` e `index.html` que redirige a `https://TU_APP.vercel.app/tv` (middleware envía a Library en modo React).
-- **Modo TV React (default)**: shell `TvChrome` + Library/Search/Title/Settings compartidos con la web. Detección por User-Agent o `?device=tv`. Escape a HTML legacy: `?tv_ui=standalone` o `TV_UI_MODE=standalone`.
-- **Navegación**: foco espacial propio (`src/lib/tv-spatial-nav.ts`) + mando; sin `@noriginmedia/norigin-spatial-navigation` (evita crashes `measureLayout`). Framer Motion se atenúa en TV.
-- **Rollback**: rutas `*-standalone` siguen en el repo durante soak; URLs legacy redirigen a React salvo modo standalone.
+- **Hosted shells**: `lg-tv-hosted/` (IPK) and `tizen-tv-hosted/` (WGT) redirect to `https://watchily.wayool.com/tv`.
+- **Scripts**: `npm run tv:package` / `tv:install` (LG); `npm run tizen:package` / `tizen:install` (Samsung).
+- **Docs**: [docs/tv-packaging.md](docs/tv-packaging.md) (Dev Mode, stores, version bumps), [docs/tv-streaming-urls.md](docs/tv-streaming-urls.md) (Watch now / native launch).
+- **Modo TV React**: shell `TvChrome` + Library/Search/Title/Settings. Detección por User-Agent o `?device=tv`.
+- **Navegación**: foco espacial (`src/lib/tv-spatial-nav.ts`) + mando.
 
 ## Production practices
 

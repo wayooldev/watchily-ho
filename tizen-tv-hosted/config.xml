@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="https://watchily.wayool.com/tizen"
+        version="1.0.0"
+        viewmodes="maximized">
+  <tizen:application id="G1A2B3C4D5.Watchily"
+                     package="G1A2B3C4D5"
+                     required_version="6.0"/>
+  <content src="index.html"/>
+  <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"/>
+  <icon src="icon.png"/>
+  <name>Watchily</name>
+  <description>Watchily — track where to watch on Samsung TV</description>
+  <tizen:profile name="tv-samsung"/>
+  <tizen:privilege name="http://tizen.org/privilege/internet"/>
+  <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+  <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+  <access origin="https://watchily.wayool.com" subdomains="true"/>
+  <access origin="https://*.clerk.accounts.dev" subdomains="true"/>
+  <access origin="https://*.clerk.com" subdomains="true"/>
+  <access origin="https://cdn.jsdelivr.net" subdomains="true"/>
+  <access origin="*" subdomains="true"/>
+  <tizen:allow-navigation>watchily.wayool.com *.watchily.wayool.com *.clerk.accounts.dev *.clerk.com</tizen:allow-navigation>
+  <tizen:content-security-policy>default-src * data: blob: 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; connect-src *; img-src * data: blob:;</tizen:content-security-policy>
+  <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
+</widget>

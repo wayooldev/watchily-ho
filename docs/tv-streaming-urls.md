@@ -1,53 +1,78 @@
-# URLs de streaming en la app TV (webOS)
+# URLs de streaming en la app TV (webOS + Tizen)
 
-## Comportamiento actual
+## Comportamiento de producto
 
-Los enlaces a Netflix, Disney+, HBO Max, etc. en el detalle de películas son **URLs web** (ej: `https://www.netflix.com/title/123456`). Al pulsar en ellos:
+Los enlaces a Netflix, Disney+, Max, etc. usan **URLs web** (ej. `https://www.netflix.com/title/123456`). En la app empaquetada (IPK / WGT), Watch now:
 
-- **En navegador de escritorio/móvil**: se abre la web del proveedor en una nueva pestaña.
-- **En webOS (TV)**: el navegador de la TV abre esa URL. Normalmente **no** abre la app nativa de Netflix/Disney+; se queda en el navegador.
+1. Intenta abrir la **app nativa** del proveedor (Luna en webOS, ApplicationControl en Tizen).
+2. Pasa la URL / content target cuando el OEM y el proveedor lo aceptan (deep link al título).
+3. Si falla o la app no está instalada → abre la URL en el navegador del sistema (sin navegar el WebView de Watchily con `location.href`, que en webOS puede dejar pantalla negra).
+
+Código: `src/lib/tv-streaming-launch.ts`, `webos-launch.ts`, `tizen-launch.ts`, cableado en `StreamingLink`.
 
 ---
 
-## Cómo abrir la app oficial de streaming (Netflix, Disney+, etc.)
+## webOS (LG)
 
-### Opción 1: API de webOS (solo en app empaquetada como IPK)
+### API
 
-Si la app está instalada como **IPK** (hosted web app), el webview puede tener acceso a `webOS.service.request()`. Se puede intentar lanzar la app nativa así:
+`webOS.service.request('luna://com.webos.applicationManager', { method: 'launch', … })` vía `webOSTV.js` (CDN en `TvChrome`).
 
-```javascript
-// Ejemplo: abrir Netflix
-if (typeof webOS !== 'undefined' && webOS.service) {
-  webOS.service.request('luna://com.webos.applicationManager', {
-    method: 'launch',
-    parameters: { id: 'netflix' },
-    onSuccess: function() { /* app abierta */ },
-    onFailure: function(err) { /* fallback: abrir URL web */ window.open(url); }
-  });
-} else {
-  window.open(url); // fallback: URL web
-}
-```
+**IDs (mapa en código):**
 
-**IDs de apps en webOS:**
-- Netflix: `netflix`
-- Disney+: `com.disney.disneyplus-prod`
-- HBO Max: varía por región (ej: `com.hbo.hbomax`)
+| Provider | App id |
+|----------|--------|
+| Netflix | `netflix` |
+| Disney+ | `com.disney.disneyplus-prod` |
+| Max | `com.wbd.max` |
+| Prime Video | `amazon` |
+| Crunchyroll | `com.crunchyroll.crmay` |
+| Paramount+ | `com.paramount.paramountplus` |
+| Apple TV+ | `com.apple.appletv` |
 
-**Limitación:** Netflix/Disney+ aceptan el `launch` pero **no documentan parámetros** para abrir un título concreto. El `launch` solo abre la app; no hay deep link público para "ir a esta película". Cada plataforma tendría que exponer sus propios parámetros.
+**Deep link:** se envía `contentTarget` / params con la URL. Muchos proveedores **abren la app** pero **ignoran** el título concreto (no documentan params públicos). Fallback: launch sin params → browser URL.
 
-### Opción 2: URLs web (actual)
+**Permisos IPK:** `application.launcher`, `com.webos.applicationManager.launch`, `com.webos.service.applicationmanager`.
 
-Mantener las URLs web. En algunas TVs, al abrir una URL de Netflix/Disney+ el sistema puede ofrecer "Abrir en la app", pero depende del fabricante.
+---
 
-### Implementación actual
+## Tizen (Samsung)
 
-1. Incluir `webOSTV.js` (CDN) para tener `webOS.service`.
-2. Usar Luna API `luna://com.webos.applicationManager` con `method: launch` — **nunca** `window.location.href` (causa pantalla negra por CORS/embedding).
-3. Para Disney+: extraer `contentId` con regex que prioriza:
-   - `entity-{GUID}` (formato Watchmode: `/browse/entity-xxx`)
-   - `/video/` o `/movies/`/`/series/`
-   - Cualquier GUID de 36 caracteres.
-4. Params para webOS 6.5: `contentTarget` (URL completa), `params: { action: 'view', target: 'player' }`, `query` con contentId. `action: 'view'` evita bloqueo en selector de perfiles.
-5. Si falla con params → reintentar launch sin params.
-6. Permisos: `application.launcher`, `com.webos.applicationManager.launch`, `com.webos.service.applicationmanager`.
+### API
+
+`tizen.application.launchAppControl(appControl, appId, …)` con `ApplicationControl` operation `http://tizen.org/appcontrol/operation/view` y URI = URL del título cuando existe.
+
+**IDs iniciales (verificar en hardware — pueden variar por región/firmware):**
+
+| Provider | App id (tentative) |
+|----------|--------------------|
+| Netflix | `org.tizen.netflix-app` |
+| Disney+ | `HOh3FT9SBL.DisneyPlus` |
+| Max | `3s5yv8f6r4.Max` |
+| Prime Video | `org.tizen.primevideo` |
+| YouTube | `9Ur5IzDKqV.TizenYouTube` |
+
+Actualizar este doc y `TIZEN_APP_IDS_BY_BRAND` tras la spike en dispositivo (task 3.4 / 5.2).
+
+**Deep link:** URI + optional `PAYLOAD` data. Si `launchAppControl` falla → reintento sin URI → `window.open(url)`.
+
+**Privilegios WGT:** `http://tizen.org/privilege/application.launch`, `internet`.
+
+---
+
+## Escritorio (`?device=tv`)
+
+Sin APIs OEM: `launchStreamingWatchNow({ preferTvBehavior: true })` hace `window.open` y no lanza excepciones. Útil para QA de foco/UI.
+
+---
+
+## Notas de spike en hardware
+
+| Platform | Provider | Native launch? | Title deep-link? | Notes | Date |
+|----------|----------|----------------|------------------|-------|------|
+| webOS | Netflix | _TBD on device_ | Often app-only | contentTarget best-effort | |
+| webOS | Disney+ | _TBD_ | Partial / GUID params historically | See legacy standalone notes | |
+| Tizen | Netflix | _TBD on device_ | _TBD_ | Confirm app id | |
+| Tizen | Disney+ / Max / Prime | _TBD_ | _TBD_ | Confirm app ids | |
+
+Fill this table when sideloading IPK/WGT on real TVs.

@@ -13,6 +13,9 @@ node_modules
 
 # testing
 /coverage
+/playwright/.clerk/
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/
@@ -27,6 +30,8 @@ node_modules
 # misc
 .DS_Store
 *.ipk
+Watchily.wgt
+*.wgt
 *.pem
 
 # debug
@@ -38,6 +43,7 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.local.example
+!.env.test.example
 .vercel-env-*.txt
 
 # vercel
